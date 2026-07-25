@@ -9,7 +9,7 @@ local lp = pls.LocalPlayer
 
 local w = lib:CreateWindow({
     Title = "SDBRP",
-    SubTitle = "Cash Auto Farm",
+    SubTitle = "Cash Auto Farm (Hybdrid)",
     Size = Vector2.new(480, 420),
     Resize = true,
 })
