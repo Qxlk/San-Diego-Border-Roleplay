@@ -9,7 +9,7 @@ local lp = pls.LocalPlayer
 
 local w = lib:CreateWindow({
     Title = "SDBRP",
-    SubTitle = "Cash Auto Farm (Hybdrid)",
+    SubTitle = "Cash Auto Farm (Hybrid)",
     Size = Vector2.new(480, 420),
     Resize = true,
 })
@@ -54,9 +54,18 @@ local io = {
 
 local pr = rs.__remotes.WorldBuyableItemService.PurchaseWorldBuyableItem
 local sr = rs.__remotes.SmuggleService.SellSmuggledGoods
-local st = ws.NPC.Seller4
 local lr = rs.__remotes.SmuggleService.LaunderBriefcase
-local lt = ws.LaunderPrompts.LaunderTrigger.PromptPart
+
+local function getSeller()
+    local npc = ws:FindFirstChild("NPC")
+    return npc and npc:FindFirstChild("Seller4")
+end
+
+local function getLaunderTrigger()
+    local prompts = ws:FindFirstChild("LaunderPrompts")
+    local trigger = prompts and prompts:FindFirstChild("LaunderTrigger")
+    return trigger and trigger:FindFirstChild("PromptPart")
+end
 
 local p2 = Vector3.new(6815.72, 17.34, 99.78)
 local p3 = Vector3.new(262.51, 17.34, 88.56)
@@ -135,7 +144,8 @@ local function ci(inm)
     local function cc(cnt)
         if not cnt then return end
         for _, itm in ipairs(cnt:GetChildren()) do
-            if itm.Name == inm then
+            local name = itm.Name
+            if name == inm or name:lower() == inm:lower() then
                 c = c + 1
             end
         end
@@ -144,6 +154,14 @@ local function ci(inm)
     cc(bp)
     cc(ch)
     return c
+end
+
+local function getTotalItems()
+    local total = 0
+    for _, info in pairs(io) do
+        total = total + ci(info.ItemName)
+    end
+    return total
 end
 
 local function gso()
@@ -308,33 +326,47 @@ local function sf()
 
                 task.wait(2)
                 if not run then break end
-                lr:FireServer(lt)
+                local lt = getLaunderTrigger()
+                if lt then
+                    lr:FireServer(lt)
+                end
                 task.wait(2)
             end
 
             if not run then break end
 
             local tk, td = gso()
-            local ccnt = ci(td.ItemName)
+            local selectedCount = ci(td.ItemName)
+            local totalItems = getTotalItems()
 
-            if ccnt < 5 and gm() >= td.Price then
-                lib:Notify({ Title = "AutoFarm", Content = "Buying " .. td.ItemName .. " ("..ccnt.."/5)...", Duration = 2 })
+            if (totalItems > 0 and selectedCount < totalItems) or (totalItems >= 5) then
+                lib:Notify({ Title = "AutoFarm", Content = "Inventory full or mismatched items -> Selling...", Duration = 2 })
+                if not esp() then break end
+
+                task.wait(2)
+                if not run then break end
+                local st = getSeller()
+                if st then
+                    sr:FireServer(st)
+                end
+                task.wait(2)
+            elseif totalItems < 5 and selectedCount < 5 and gm() >= td.Price then
+                lib:Notify({ Title = "AutoFarm", Content = "Buying " .. td.ItemName .. " ("..selectedCount.."/5)...", Duration = 2 })
                 mv(td.Position)
                 if not run then break end
                 task.wait(2)
                 bmi(td.ItemName, td.Price, 0.2)
                 if not run then break end
-            end
-
-            ccnt = ci(td.ItemName)
-
-            if ccnt > 0 then
-                lib:Notify({ Title = "AutoFarm", Content = "Selling " .. td.ItemName .. " ("..ccnt.."/5)...", Duration = 2 })
+            elseif selectedCount > 0 then
+                lib:Notify({ Title = "AutoFarm", Content = "Selling " .. td.ItemName .. " ("..selectedCount.."/5)...", Duration = 2 })
                 if not esp() then break end
 
                 task.wait(2)
                 if not run then break end
-                sr:FireServer(st)
+                local st = getSeller()
+                if st then
+                    sr:FireServer(st)
+                end
                 task.wait(2)
             else
                 task.wait(2)
