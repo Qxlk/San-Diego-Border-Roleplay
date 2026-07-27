@@ -275,6 +275,12 @@ local function esp()
     if sellerName == "Seller 2" then
         sp = {
             Vector3.new(6815.72, 17.34, 99.78),
+            Vector3.new(5879.55, 17.34, 98.18),
+            Vector3.new(4943.38, 17.34, 96.58),
+            Vector3.new(4007.21, 17.34, 94.97),
+            Vector3.new(3071.04, 17.34, 93.37),
+            Vector3.new(2134.86, 17.34, 91.76),
+            Vector3.new(1198.69, 17.34, 90.16),
             Vector3.new(262.51, 17.34, 88.56),
             Vector3.new(58.78, 17.34, 95.13),
             Vector3.new(59.62, 17.30, 401.90),
@@ -285,6 +291,12 @@ local function esp()
     elseif sellerName == "Seller 1" then
         sp = {
             Vector3.new(6815.72, 17.34, 99.78),
+            Vector3.new(5879.55, 17.34, 98.18),
+            Vector3.new(4943.38, 17.34, 96.58),
+            Vector3.new(4007.21, 17.34, 94.97),
+            Vector3.new(3071.04, 17.34, 93.37),
+            Vector3.new(2134.86, 17.34, 91.76),
+            Vector3.new(1198.69, 17.34, 90.16),
             Vector3.new(262.51, 17.34, 88.56),
             Vector3.new(133.96, 17.34, 90.43),
             Vector3.new(132.42, 17.34, 223.90),
@@ -295,6 +307,12 @@ local function esp()
     elseif sellerName == "Seller 3" then
         sp = {
             Vector3.new(6815.72, 17.34, 99.78),
+            Vector3.new(5879.55, 17.34, 98.18),
+            Vector3.new(4943.38, 17.34, 96.58),
+            Vector3.new(4007.21, 17.34, 94.97),
+            Vector3.new(3071.04, 17.34, 93.37),
+            Vector3.new(2134.86, 17.34, 91.76),
+            Vector3.new(1198.69, 17.34, 90.16),
             Vector3.new(262.51, 17.34, 88.56),
             Vector3.new(-139.88, 17.34, 88.50),
             Vector3.new(-141.18, 17.30, 1151.30),
@@ -304,6 +322,12 @@ local function esp()
     else
         sp = {
             Vector3.new(6815.72, 17.34, 99.78),
+            Vector3.new(5879.55, 17.34, 98.18),
+            Vector3.new(4943.38, 17.34, 96.58),
+            Vector3.new(4007.21, 17.34, 94.97),
+            Vector3.new(3071.04, 17.34, 93.37),
+            Vector3.new(2134.86, 17.34, 91.76),
+            Vector3.new(1198.69, 17.34, 90.16),
             Vector3.new(262.51, 17.34, 88.56),
             Vector3.new(260.52, 17.36, -44.73),
             Vector3.new(208.70, 17.36, -46.10)
@@ -349,6 +373,12 @@ local function elp()
             Vector3.new(59.62, 17.30, 401.90),
             Vector3.new(58.78, 17.34, 95.13),
             Vector3.new(262.51, 17.34, 88.56),
+            Vector3.new(1198.69, 17.34, 90.16),
+            Vector3.new(2134.86, 17.34, 91.76),
+            Vector3.new(3071.04, 17.34, 93.37),
+            Vector3.new(4007.21, 17.34, 94.97),
+            Vector3.new(4943.38, 17.34, 96.58),
+            Vector3.new(5879.55, 17.34, 98.18),
             Vector3.new(6815.72, 17.34, 99.78),
             Vector3.new(6807.85, 17.56, -30.63)
         }
@@ -360,6 +390,12 @@ local function elp()
             Vector3.new(132.42, 17.34, 223.90),
             Vector3.new(133.96, 17.34, 90.43),
             Vector3.new(262.51, 17.34, 88.56),
+            Vector3.new(1198.69, 17.34, 90.16),
+            Vector3.new(2134.86, 17.34, 91.76),
+            Vector3.new(3071.04, 17.34, 93.37),
+            Vector3.new(4007.21, 17.34, 94.97),
+            Vector3.new(4943.38, 17.34, 96.58),
+            Vector3.new(5879.55, 17.34, 98.18),
             Vector3.new(6815.72, 17.34, 99.78),
             Vector3.new(6807.85, 17.56, -30.63)
         }
@@ -370,6 +406,12 @@ local function elp()
             Vector3.new(-141.18, 17.30, 1151.30),
             Vector3.new(-139.88, 17.34, 88.50),
             Vector3.new(262.51, 17.34, 88.56),
+            Vector3.new(1198.69, 17.34, 90.16),
+            Vector3.new(2134.86, 17.34, 91.76),
+            Vector3.new(3071.04, 17.34, 93.37),
+            Vector3.new(4007.21, 17.34, 94.97),
+            Vector3.new(4943.38, 17.34, 96.58),
+            Vector3.new(5879.55, 17.34, 98.18),
             Vector3.new(6815.72, 17.34, 99.78),
             Vector3.new(6807.85, 17.56, -30.63)
         }
@@ -378,6 +420,12 @@ local function elp()
             Vector3.new(208.70, 17.36, -46.10),
             Vector3.new(260.52, 17.36, -44.73),
             Vector3.new(262.51, 17.34, 88.56),
+            Vector3.new(1198.69, 17.34, 90.16),
+            Vector3.new(2134.86, 17.34, 91.76),
+            Vector3.new(3071.04, 17.34, 93.37),
+            Vector3.new(4007.21, 17.34, 94.97),
+            Vector3.new(4943.38, 17.34, 96.58),
+            Vector3.new(5879.55, 17.34, 98.18),
             Vector3.new(6815.72, 17.34, 99.78),
             Vector3.new(6807.85, 17.56, -30.63)
         }
