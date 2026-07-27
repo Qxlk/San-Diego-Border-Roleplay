@@ -15,6 +15,7 @@ local w = lib:CreateWindow({
 })
 
 local tb = w:AddTab({ Title = "Farm", Icon = "play" })
+local trk_tab = w:AddTab({ Title = "Tracker", Icon = "bar-chart" })
 
 local iol = {
     "1. Avacados ($150)",
@@ -56,9 +57,36 @@ local pr = rs.__remotes.WorldBuyableItemService.PurchaseWorldBuyableItem
 local sr = rs.__remotes.SmuggleService.SellSmuggledGoods
 local lr = rs.__remotes.SmuggleService.LaunderBriefcase
 
-local function getSeller()
+local sellerOptions = { "Seller 1", "Seller 2 (Most Money)", "Seller 3", "Seller 4" }
+local sellerDropdown = tb:AddDropdown({
+    Id = "selected_seller",
+    Title = "Select Seller",
+    Values = sellerOptions,
+    Default = sellerOptions[1]
+})
+
+local function getSelectedSellerName()
+    local v = sellerDropdown.Value
+    if not v then return "Seller 1" end
+    if v:match("Seller 2") then
+        return "Seller 2"
+    end
+    return v
+end
+
+local function getSellerInstance()
     local npc = ws:FindFirstChild("NPC")
-    return npc and npc:FindFirstChild("Seller4")
+    if not npc then return nil end
+    local name = getSelectedSellerName()
+    if name == "Seller 2" then
+        return npc:FindFirstChild("Seller2")
+    elseif name == "Seller 3" then
+        return npc:FindFirstChild("Seller3")
+    elseif name == "Seller 1" then
+        return npc:FindFirstChild("Seller")
+    else
+        return npc:FindFirstChild("Seller4")
+    end
 end
 
 local function getLaunderTrigger()
@@ -66,12 +94,6 @@ local function getLaunderTrigger()
     local trigger = prompts and prompts:FindFirstChild("LaunderTrigger")
     return trigger and trigger:FindFirstChild("PromptPart")
 end
-
-local p2 = Vector3.new(6815.72, 17.34, 99.78)
-local p3 = Vector3.new(262.51, 17.34, 88.56)
-local p4 = Vector3.new(260.52, 17.36, -44.73)
-local p5 = Vector3.new(208.70, 17.36, -46.10)
-local p6 = Vector3.new(6807.85, 17.56, -30.63)
 
 local idd = tb:AddDropdown({
     Id = "selected_item_option",
@@ -90,9 +112,29 @@ local spd = tb:AddSlider({
     Callback = function(v, ov) end,
 })
 
+local elChapo = false
+
+tb:AddToggle({
+    Id = "el_chapo_toggle",
+    Title = "El Chapo Owner (8 Items)",
+    Default = false,
+    Callback = function(v)
+        elChapo = v
+    end,
+})
+
 local run = false
 local fth = nil
 local ftg
+
+local trackStartTime = nil
+local startMoney = nil
+local currentMoney = 0
+local elapsedTime = 0
+
+local function getMaxCapacity()
+    return elChapo and 8 or 5
+end
 
 local function gs()
     if not spd then return 300 end
@@ -228,7 +270,46 @@ local function hb()
 end
 
 local function esp()
-    local sp = {p2, p3, p4, p5}
+    local sellerName = getSelectedSellerName()
+    local sp
+    if sellerName == "Seller 2" then
+        sp = {
+            Vector3.new(6815.72, 17.34, 99.78),
+            Vector3.new(262.51, 17.34, 88.56),
+            Vector3.new(58.78, 17.34, 95.13),
+            Vector3.new(59.62, 17.30, 401.90),
+            Vector3.new(49.37, 52.60, 406.83),
+            Vector3.new(52.36, 49.37, 430.99),
+            Vector3.new(-81.70, 49.37, 431.71)
+        }
+    elseif sellerName == "Seller 1" then
+        sp = {
+            Vector3.new(6815.72, 17.34, 99.78),
+            Vector3.new(262.51, 17.34, 88.56),
+            Vector3.new(133.96, 17.34, 90.43),
+            Vector3.new(132.42, 17.34, 223.90),
+            Vector3.new(130.97, 17.36, 235.90),
+            Vector3.new(131.01, 18.04, 261.44),
+            Vector3.new(150.97, 17.81, 261.38)
+        }
+    elseif sellerName == "Seller 3" then
+        sp = {
+            Vector3.new(6815.72, 17.34, 99.78),
+            Vector3.new(262.51, 17.34, 88.56),
+            Vector3.new(-139.88, 17.34, 88.50),
+            Vector3.new(-141.18, 17.30, 1151.30),
+            Vector3.new(-208.29, 17.30, 1150.50),
+            Vector3.new(-201.13, 17.30, 1243.99)
+        }
+    else
+        sp = {
+            Vector3.new(6815.72, 17.34, 99.78),
+            Vector3.new(262.51, 17.34, 88.56),
+            Vector3.new(260.52, 17.36, -44.73),
+            Vector3.new(208.70, 17.36, -46.10)
+        }
+    end
+
     local ch = lp.Character
     local hrp = ch and ch:FindFirstChild("HumanoidRootPart")
     
@@ -258,7 +339,50 @@ local function esp()
 end
 
 local function elp()
-    local lpth = {p5, p4, p3, p2, p6}
+    local sellerName = getSelectedSellerName()
+    local lpth
+    if sellerName == "Seller 2" then
+        lpth = {
+            Vector3.new(-81.70, 49.37, 431.71),
+            Vector3.new(52.36, 49.37, 430.99),
+            Vector3.new(49.37, 52.60, 406.83),
+            Vector3.new(59.62, 17.30, 401.90),
+            Vector3.new(58.78, 17.34, 95.13),
+            Vector3.new(262.51, 17.34, 88.56),
+            Vector3.new(6815.72, 17.34, 99.78),
+            Vector3.new(6807.85, 17.56, -30.63)
+        }
+    elseif sellerName == "Seller 1" then
+        lpth = {
+            Vector3.new(150.97, 17.81, 261.38),
+            Vector3.new(131.01, 18.04, 261.44),
+            Vector3.new(130.97, 17.36, 235.90),
+            Vector3.new(132.42, 17.34, 223.90),
+            Vector3.new(133.96, 17.34, 90.43),
+            Vector3.new(262.51, 17.34, 88.56),
+            Vector3.new(6815.72, 17.34, 99.78),
+            Vector3.new(6807.85, 17.56, -30.63)
+        }
+    elseif sellerName == "Seller 3" then
+        lpth = {
+            Vector3.new(-201.13, 17.30, 1243.99),
+            Vector3.new(-208.29, 17.30, 1150.50),
+            Vector3.new(-141.18, 17.30, 1151.30),
+            Vector3.new(-139.88, 17.34, 88.50),
+            Vector3.new(262.51, 17.34, 88.56),
+            Vector3.new(6815.72, 17.34, 99.78),
+            Vector3.new(6807.85, 17.56, -30.63)
+        }
+    else
+        lpth = {
+            Vector3.new(208.70, 17.36, -46.10),
+            Vector3.new(260.52, 17.36, -44.73),
+            Vector3.new(262.51, 17.34, 88.56),
+            Vector3.new(6815.72, 17.34, 99.78),
+            Vector3.new(6807.85, 17.56, -30.63)
+        }
+    end
+
     local ch = lp.Character
     local hrp = ch and ch:FindFirstChild("HumanoidRootPart")
     
@@ -289,8 +413,9 @@ end
 
 local function bmi(inm, iprc, db)
     db = db or 0.2
+    local maxCap = getMaxCapacity()
     local ccnt = ci(inm)
-    local ned = 5 - ccnt
+    local ned = maxCap - ccnt
     if ned <= 0 then return false end
 
     local cmon = gm()
@@ -311,10 +436,19 @@ local function bmi(inm, iprc, db)
     return false
 end
 
+local function resetTracker()
+    trackStartTime = os.clock()
+    elapsedTime = 0
+    local val = gm()
+    startMoney = val or 0
+    currentMoney = startMoney
+end
+
 local function sf()
     if run then return end
     run = true
     
+    resetTracker()
     lib:Notify({ Title = "AutoFarm", Content = "enabled!", Duration = 2 })
 
     fth = task.spawn(function()
@@ -338,32 +472,34 @@ local function sf()
             local tk, td = gso()
             local selectedCount = ci(td.ItemName)
             local totalItems = getTotalItems()
+            local maxCap = getMaxCapacity()
+            local sellerName = getSelectedSellerName()
 
-            if (totalItems > 0 and selectedCount < totalItems) or (totalItems >= 5) then
-                lib:Notify({ Title = "AutoFarm", Content = "Inventory full or mismatched items -> Selling...", Duration = 2 })
+            if (totalItems > 0 and selectedCount < totalItems) or (totalItems >= maxCap) then
+                lib:Notify({ Title = "AutoFarm", Content = "Inventory full -> Selling at " .. sellerName .. "...", Duration = 2 })
                 if not esp() then break end
 
                 task.wait(2)
                 if not run then break end
-                local st = getSeller()
+                local st = getSellerInstance()
                 if st then
                     sr:FireServer(st)
                 end
                 task.wait(2)
-            elseif totalItems < 5 and selectedCount < 5 and gm() >= td.Price then
-                lib:Notify({ Title = "AutoFarm", Content = "Buying " .. td.ItemName .. " ("..selectedCount.."/5)...", Duration = 2 })
+            elseif totalItems < maxCap and selectedCount < maxCap and gm() >= td.Price then
+                lib:Notify({ Title = "AutoFarm", Content = "Buying " .. td.ItemName .. " ("..selectedCount.."/"..maxCap..")...", Duration = 2 })
                 mv(td.Position)
                 if not run then break end
                 task.wait(2)
                 bmi(td.ItemName, td.Price, 0.2)
                 if not run then break end
             elseif selectedCount > 0 then
-                lib:Notify({ Title = "AutoFarm", Content = "Selling " .. td.ItemName .. " ("..selectedCount.."/5)...", Duration = 2 })
+                lib:Notify({ Title = "AutoFarm", Content = "Selling " .. td.ItemName .. " at " .. sellerName .. "...", Duration = 2 })
                 if not esp() then break end
 
                 task.wait(2)
                 if not run then break end
-                local st = getSeller()
+                local st = getSellerInstance()
                 if st then
                     sr:FireServer(st)
                 end
@@ -419,6 +555,105 @@ tb:AddKeybind({
         end
     end,
 })
+
+local statsParagraph = trk_tab:AddParagraph({
+    Title = "Money Statistics",
+    Content = "Status: Waiting for Auto Farm to start...",
+})
+
+trk_tab:AddButton({
+    Title = "Reset Counter ($/h)",
+    Callback = function()
+        if run then
+            resetTracker()
+            lib:Notify({ Title = "Tracker", Content = "Counter reset!", Duration = 2 })
+        else
+            lib:Notify({ Title = "Tracker", Content = "Start Auto Farm first!", Duration = 2 })
+        end
+    end,
+})
+
+task.spawn(function()
+    while true do
+        if run then
+            local liveMoney = gm()
+
+            if liveMoney ~= nil then
+                if startMoney == nil then
+                    startMoney = liveMoney
+                    trackStartTime = os.clock()
+                end
+
+                currentMoney = liveMoney
+                local diff = currentMoney - startMoney
+                elapsedTime = math.max(1, os.clock() - (trackStartTime or os.clock()))
+                local moneyPerHour = math.floor((diff / elapsedTime) * 3600)
+
+                local hrs = math.floor(elapsedTime / 3600)
+                local mins = math.floor((elapsedTime % 3600) / 60)
+                local secs = math.floor(elapsedTime % 60)
+                local timeStr = string.format("%02dh %02dm %02ds", hrs, mins, secs)
+
+                local sign = diff >= 0 and "+" or ""
+
+                local contentText = string.format(
+                    "Status: Active\n" ..
+                    "Current Money: $%s\n" ..
+                    "Gained / Lost: %s$%s\n" ..
+                    "Elapsed Time: %s\n" ..
+                    "Money / Hour Rate: $%s / hour",
+                    tostring(currentMoney),
+                    sign,
+                    tostring(diff),
+                    timeStr,
+                    tostring(moneyPerHour)
+                )
+
+                if statsParagraph.SetContent then
+                    statsParagraph:SetContent(contentText)
+                elseif statsParagraph.SetText then
+                    statsParagraph:SetText(contentText)
+                end
+            end
+        else
+            if startMoney ~= nil then
+                local diff = currentMoney - startMoney
+                local duration = math.max(1, elapsedTime)
+                local moneyPerHour = math.floor((diff / duration) * 3600)
+
+                local hrs = math.floor(duration / 3600)
+                local mins = math.floor((duration % 3600) / 60)
+                local secs = math.floor(duration % 60)
+                local timeStr = string.format("%02dh %02dm %02ds", hrs, mins, secs)
+                local sign = diff >= 0 and "+" or ""
+
+                local contentText = string.format(
+                    "Status: Stopped (Start farm to track)\n" ..
+                    "Current Money: $%s\n" ..
+                    "Gained / Lost: %s$%s\n" ..
+                    "Elapsed Time: %s\n" ..
+                    "Money / Hour Rate: $%s / hour",
+                    tostring(currentMoney),
+                    sign,
+                    tostring(diff),
+                    timeStr,
+                    tostring(moneyPerHour)
+                )
+
+                if statsParagraph.SetContent then
+                    statsParagraph:SetContent(contentText)
+                elseif statsParagraph.SetText then
+                    statsParagraph:SetText(contentText)
+                end
+            else
+                if statsParagraph.SetContent then
+                    statsParagraph:SetContent("Status: Waiting for Auto Farm to start...")
+                end
+            end
+        end
+        task.wait(1)
+    end
+end)
 
 local cf = w:AddTab({ Title = "Config", Icon = "save" })
 w:BuildConfigSection(cf)
