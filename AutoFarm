@@ -10,7 +10,7 @@ local lp = pls.LocalPlayer
 local w = lib:CreateWindow({
     Title = "SDBRP",
     SubTitle = "Cash Auto Farm",
-    Size = Vector2.new(480, 420),
+    Size = Vector2.new(480, 460),
     Resize = true,
 })
 
@@ -121,6 +121,11 @@ tb:AddToggle({
 local run = false
 local fth = nil
 local ftg
+
+local trackStartTime = nil
+local startMoney = nil
+local currentMoney = 0
+local elapsedTime = 0
 
 local function getMaxCapacity()
     return elChapo and 8 or 5
@@ -433,10 +438,19 @@ local function bmi(inm, iprc, db)
     return false
 end
 
+local function resetTracker()
+    trackStartTime = os.clock()
+    elapsedTime = 0
+    local val = gm()
+    startMoney = val or 0
+    currentMoney = startMoney
+end
+
 local function sf()
     if run then return end
     run = true
     
+    resetTracker()
     lib:Notify({ Title = "AutoFarm", Content = "enabled!", Duration = 2 })
 
     fth = task.spawn(function()
@@ -543,6 +557,107 @@ tb:AddKeybind({
         end
     end,
 })
+
+local trk_tab = w:AddTab({ Title = "Tracker", Icon = "bar-chart" })
+
+local statsParagraph = trk_tab:AddParagraph({
+    Title = "Money Statistics",
+    Content = "Status: Waiting for Auto Farm to start...",
+})
+
+trk_tab:AddButton({
+    Title = "Reset Counter ($/h)",
+    Callback = function()
+        if run then
+            resetTracker()
+            lib:Notify({ Title = "Tracker", Content = "Counter reset!", Duration = 2 })
+        else
+            lib:Notify({ Title = "Tracker", Content = "Start Auto Farm first!", Duration = 2 })
+        end
+    end,
+})
+
+task.spawn(function()
+    while true do
+        if run then
+            local liveMoney = gm()
+
+            if liveMoney ~= nil then
+                if startMoney == nil then
+                    startMoney = liveMoney
+                    trackStartTime = os.clock()
+                end
+
+                currentMoney = liveMoney
+                local diff = currentMoney - startMoney
+                elapsedTime = math.max(1, os.clock() - (trackStartTime or os.clock()))
+                local moneyPerHour = math.floor((diff / elapsedTime) * 3600)
+
+                local hrs = math.floor(elapsedTime / 3600)
+                local mins = math.floor((elapsedTime % 3600) / 60)
+                local secs = math.floor(elapsedTime % 60)
+                local timeStr = string.format("%02dh %02dm %02ds", hrs, mins, secs)
+
+                local sign = diff >= 0 and "+" or ""
+
+                local contentText = string.format(
+                    "Status: Active\n" ..
+                    "Current Money: $%s\n" ..
+                    "Gained / Lost: %s$%s\n" ..
+                    "Elapsed Time: %s\n" ..
+                    "Money / Hour Rate: $%s / hour",
+                    tostring(currentMoney),
+                    sign,
+                    tostring(diff),
+                    timeStr,
+                    tostring(moneyPerHour)
+                )
+
+                if statsParagraph.SetContent then
+                    statsParagraph:SetContent(contentText)
+                elseif statsParagraph.SetText then
+                    statsParagraph:SetText(contentText)
+                end
+            end
+        else
+            if startMoney ~= nil then
+                local diff = currentMoney - startMoney
+                local duration = math.max(1, elapsedTime)
+                local moneyPerHour = math.floor((diff / duration) * 3600)
+
+                local hrs = math.floor(duration / 3600)
+                local mins = math.floor((duration % 3600) / 60)
+                local secs = math.floor(duration % 60)
+                local timeStr = string.format("%02dh %02dm %02ds", hrs, mins, secs)
+                local sign = diff >= 0 and "+" or ""
+
+                local contentText = string.format(
+                    "Status: Stopped (Start farm to track)\n" ..
+                    "Current Money: $%s\n" ..
+                    "Gained / Lost: %s$%s\n" ..
+                    "Elapsed Time: %s\n" ..
+                    "Money / Hour Rate: $%s / hour",
+                    tostring(currentMoney),
+                    sign,
+                    tostring(diff),
+                    timeStr,
+                    tostring(moneyPerHour)
+                )
+
+                if statsParagraph.SetContent then
+                    statsParagraph:SetContent(contentText)
+                elseif statsParagraph.SetText then
+                    statsParagraph:SetText(contentText)
+                end
+            else
+                if statsParagraph.SetContent then
+                    statsParagraph:SetContent("Status: Waiting for Auto Farm to start...")
+                end
+            end
+        end
+        task.wait(1)
+    end
+end)
 
 local cf = w:AddTab({ Title = "Config", Icon = "save" })
 w:BuildConfigSection(cf)
