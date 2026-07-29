@@ -419,6 +419,77 @@ tb:AddKeybind({
     end,
 })
 
+local modDetectionEnabled = false
+local targetUserIds = {
+    [700913853] = true,
+    [395178354] = true,
+    [248521802] = true,
+    [293652396] = true,
+    [245781938] = true,
+    [4647053869] = true,
+    [241853519] = true,
+    [7516459321] = true,
+    [2568763019] = true,
+    [347840260] = true,
+    [1690777311] = true,
+    [583547011] = true,
+    [13741143] = true,
+    [8158000] = true,
+    [2636062189] = true,
+    [70407408] = true,
+    [25661233] = true,
+    [2800814811] = true,
+    [6100317] = true,
+    [1464931650] = true,
+    [45567938] = true,
+    [20022879] = true,
+}
+
+local function triggerModSequence()
+    spf()
+    pcall(function()
+        keypress(0x1B)
+        task.wait(0.05)
+        keyrelease(0x1B)
+    end)
+    task.wait(0.1)
+    pcall(function()
+        keypress(0x4C)
+        task.wait(0.05)
+        keyrelease(0x4C)
+    end)
+    task.wait(0.1)
+    pcall(function()
+        keypress(0x0D)
+        task.wait(0.05)
+        keyrelease(0x0D)
+    end)
+end
+
+task.spawn(function()
+    while true do
+        task.wait(1)
+        if modDetectionEnabled then
+            for _, player in ipairs(pls:GetPlayers()) do
+                if targetUserIds[player.UserId] then
+                    triggerModSequence()
+                    task.wait(5)
+                    break
+                end
+            end
+        end
+    end
+end)
+
+tb:AddToggle({
+    Id = "mod_detection_toggle",
+    Title = "Mod Detection",
+    Default = false,
+    Callback = function(v)
+        modDetectionEnabled = v
+    end,
+})
+
 local trk_tab = w:AddTab({ Title = "Tracker", Icon = "bar-chart" })
 local statsParagraph = trk_tab:AddParagraph({ Title = "Money Statistics", Content = "Status: Waiting for Auto Farm to start..." })
 trk_tab:AddButton({
